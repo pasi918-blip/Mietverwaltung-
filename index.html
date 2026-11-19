@@ -140,7 +140,7 @@ async function exp(){let j;try{const o=JSON.parse(JSON.stringify(S));o.files={};
  const n="mietverwaltung-"+today()+".json",bl=new Blob([j],{type:"application/json"});
  try{const d=await claude.use("downloads");if(d){await d.save({filename:n,data:bl});return}}catch(e){if(e&&e.code=="declined")return}
  const a=document.createElement("a");a.href=URL.createObjectURL(bl);a.download=n;a.click()}
-function imp(f){if(!f)return;const r=new FileReader();r.onload=async()=>{try{const d=JSON.parse(r.result);if(!confirm("Aktuelle Daten durch die Sicherung ersetzen?"))return;const fl=d.files||{};delete d.files;
+function imp(f){if(!f)return;const r=new FileReader();r.onload=async()=>{try{const d=JSON.parse(r.result);if(d.merge){if(!confirm("Daten aus dieser Datei zu den vorhandenen hinzufügen? Vorhandene Einträge bleiben erhalten."))return;["houses","units","nka"].forEach(k=>{S[k]=S[k]||[];(d[k]||[]).forEach(x=>{if(!S[k].some(y=>y.id==x.id))S[k].push(x)})});save();render();return}if(!confirm("Aktuelle Daten durch die Sicherung ersetzen?"))return;const fl=d.files||{};delete d.files;
  for(const id in fl){const x=fl[id],bin=atob(x.d),u=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)u[i]=bin.charCodeAt(i);await fput(id,new Blob([u],{type:x.t}))}
  S=Object.assign({units:[],houses:[],nka:[],oil:[],meters:[],pay:{},moves:[],docs:[],tasks:[]},d);save();render()}catch(e){alert("Die Datei ist keine gültige Sicherung.")}};r.readAsText(f)}
 const oilV=x=>{const p=S.oil.filter(y=>(y.house||"")==(x.house||"")&&y.id!=x.id&&y.date<=x.date).sort((a,b)=>b.date.localeCompare(a.date))[0];return p?p.lvl+ +(x.fill||0)-x.lvl:null};
